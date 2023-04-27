@@ -51,7 +51,7 @@ class MainActivity : AppCompatActivity() {
                 .withListener(object : MultiplePermissionsListener{
                     override fun onPermissionsChecked(report: MultiplePermissionsReport?) {
                         if (report!!.areAllPermissionsGranted()) {
-
+                            requestLocationData()
                         }
                         if (report.isAnyPermissionPermanentlyDenied) {
                             Toast.makeText(
@@ -100,5 +100,35 @@ class MainActivity : AppCompatActivity() {
                                            _ ->
                 dialog.dismiss()
             }.show()
+    }
+    @SuppressLint("MissingPermission")
+    private fun requestLocationData() {
+
+        val mLocationRequest = LocationRequest()
+        mLocationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+
+        mFusedLocationClient.requestLocationUpdates(
+            mLocationRequest, mLocationCallback,
+            Looper.myLooper()
+        )
+    }
+    private val mLocationCallback = object : LocationCallback() {
+        override fun onLocationResult(locationResult: LocationResult) {
+            val mLastLocation: Location = locationResult.lastLocation!!
+            val latitude = mLastLocation.latitude
+            Log.i("Current Latitude", "$latitude")
+
+            val longitude = mLastLocation.longitude
+            Log.i("Current Longitude", "$longitude")
+            getLocationWeatherDetails()
+        }
+    }
+
+    private fun getLocationWeatherDetails(){
+        if(Constants.isNetworkAvailable(this)){
+            Toast.makeText(this, "You have connected to the internet.Now you can make an", Toast.LENGTH_SHORT).show()
+        }else{
+            Toast.makeText(this, "NO internet connection available", Toast.LENGTH_SHORT).show()
+        }
     }
 }
